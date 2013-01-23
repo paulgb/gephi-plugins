@@ -5,14 +5,13 @@
 package org.paulbutler.topolayout;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.HashMap;
+import java.util.List;
 import org.gephi.graph.api.Graph;
 import org.gephi.graph.api.GraphModel;
 import org.gephi.graph.api.Node;
-import org.gephi.graph.api.NodeData;
 import org.gephi.graph.api.NodeIterable;
 import org.gephi.layout.spi.Layout;
 import org.gephi.layout.spi.LayoutBuilder;
@@ -64,6 +63,26 @@ public class TopologicalLayout implements Layout {
         Collections.sort(ySorted, new YComparitor());
         
         ArrayList<Removal> removals = new ArrayList<Removal>();
+        HashMap<Node, DynamicPoint> nodeToPoint = new HashMap<Node, DynamicPoint>();
+        
+        for (Node node : graph.getNodes()) {
+            nodeToPoint.put(node, new DynamicPoint(0, 0));
+        }
+        
+        for (int i = 0; i < xSorted.size(); i++) {
+            nodeToPoint.get(xSorted.get(i)).colIndex = i;
+        }
+        
+        for (int i = 0; i < ySorted.size(); i++) {
+            nodeToPoint.get(ySorted.get(i)).rowIndex = i;
+        }
+        
+        DynamicGrid grid = new DynamicGrid(nodeToPoint.values());
+        
+        grid.print();
+        
+        /*
+        
         float lastX = xSorted.get(0).getNodeData().x();
         float lastY = ySorted.get(0).getNodeData().y();
         
@@ -72,7 +91,7 @@ public class TopologicalLayout implements Layout {
             float dist = x - lastX;
             System.out.println("x " + x + " lastX " + lastX + " dist " + dist);
             
-            removals.add(new Removal(Direction.VERTICAL, dist, i));
+            removals.add(new Removal(GridDimension.ROW, dist, i));
             lastX = x;
         }
         
@@ -81,32 +100,27 @@ public class TopologicalLayout implements Layout {
             float dist = y - lastY;
             System.out.println("y " + y + " lastY " + lastY + " dist " + dist);
             
-            removals.add(new Removal(Direction.HORIZONTAL, dist, i));
+            removals.add(new Removal(GridDimension.COL, dist, i));
             lastY = y;
         }
         
         Collections.sort(removals);
-        
-        
+        */
         
         converged = true;
     }
-
-    private enum Direction {
-        VERTICAL, HORIZONTAL
-    }
     
     private class Removal implements Comparable<Removal> {
-        public Direction direction;
+        public GridDimension dim;
         public float distance;
         public int index;
         
         public String toString() {
-            return direction.toString() + ' ' + distance + ' ' + index;
+            return dim.toString() + ' ' + distance + ' ' + index;
         }
         
-        public Removal (Direction direction, float distance, int index) {
-            this.direction = direction;
+        public Removal (GridDimension dim, float distance, int index) {
+            this.dim = dim;
             this.distance = distance;
             this.index = index;
         }
@@ -143,7 +157,7 @@ public class TopologicalLayout implements Layout {
         @Override
         public int compare(Node a, Node b) {
             float diff = a.getNodeData().y() - b.getNodeData().y();
-            if (diff > 0) {
+            if (diff < 0) {
                 return 1;
             } else if (diff == 0) {
                 return 0;
@@ -152,7 +166,6 @@ public class TopologicalLayout implements Layout {
             }
         }
     }
-
     
     @Override
     public void endAlgo() {
