@@ -13,9 +13,7 @@ public class DynamicPoint {
         return "Point originally at " + colIndex + ", " + rowIndex;
     }
     
-    public DynamicPoint(int rowIndex, int colIndex) {
-        this.rowIndex = rowIndex;
-        this.colIndex = colIndex;
+    public DynamicPoint() {
     }
 
     void setPosition(DynamicSlice col, DynamicSlice row) {

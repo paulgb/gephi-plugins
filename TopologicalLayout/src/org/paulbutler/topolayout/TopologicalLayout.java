@@ -12,6 +12,7 @@ import java.util.List;
 import org.gephi.graph.api.Graph;
 import org.gephi.graph.api.GraphModel;
 import org.gephi.graph.api.Node;
+import org.gephi.graph.api.NodeData;
 import org.gephi.graph.api.NodeIterable;
 import org.gephi.layout.spi.Layout;
 import org.gephi.layout.spi.LayoutBuilder;
@@ -49,12 +50,12 @@ public class TopologicalLayout implements Layout {
 
     @Override
     public void goAlgo() {
-        NodeIterable n = graph.getNodes();
+        
         
         ArrayList<Node> xSorted = new ArrayList<Node>();
         ArrayList<Node> ySorted = new ArrayList<Node>();
         
-        for (Node node : n) {
+        for (Node node : graph.getNodes()) {
             xSorted.add(node);
             ySorted.add(node);
         }
@@ -64,9 +65,12 @@ public class TopologicalLayout implements Layout {
         
         ArrayList<Removal> removals = new ArrayList<Removal>();
         HashMap<Node, DynamicPoint> nodeToPoint = new HashMap<Node, DynamicPoint>();
+        HashMap<DynamicPoint, Node> pointToNode = new HashMap<DynamicPoint, Node>();
         
         for (Node node : graph.getNodes()) {
-            nodeToPoint.put(node, new DynamicPoint(0, 0));
+            DynamicPoint point = new DynamicPoint();
+            nodeToPoint.put(node, point);
+            pointToNode.put(point, node);
         }
         
         for (int i = 0; i < xSorted.size(); i++) {
@@ -79,9 +83,7 @@ public class TopologicalLayout implements Layout {
         
         DynamicGrid grid = new DynamicGrid(nodeToPoint.values());
         
-        grid.print();
-        
-        /*
+        //grid.print();
         
         float lastX = xSorted.get(0).getNodeData().x();
         float lastY = ySorted.get(0).getNodeData().y();
@@ -91,21 +93,40 @@ public class TopologicalLayout implements Layout {
             float dist = x - lastX;
             System.out.println("x " + x + " lastX " + lastX + " dist " + dist);
             
-            removals.add(new Removal(GridDimension.ROW, dist, i));
+            removals.add(new Removal(GridDimension.COL, dist, i));
             lastX = x;
         }
         
         for (int i = 1; i < ySorted.size(); i++) {
             float y = ySorted.get(i).getNodeData().y();
-            float dist = y - lastY;
+            float dist = lastY - y;
             System.out.println("y " + y + " lastY " + lastY + " dist " + dist);
             
-            removals.add(new Removal(GridDimension.COL, dist, i));
+            removals.add(new Removal(GridDimension.ROW, dist, i));
             lastY = y;
         }
         
         Collections.sort(removals);
-        */
+                
+        for (Removal removal : removals) {
+            
+            if (removal.dim == GridDimension.ROW) {
+                grid.removeRow(removal.index);
+            } else {
+                grid.removeCol(removal.index);
+            }
+            
+            //grid.print();
+        }
+        
+        grid.reIndex();;
+        for (DynamicPoint p : grid.points) {
+            Node n = pointToNode.get(p);
+            NodeData nd = n.getNodeData();
+            nd.setX(p.col.index);
+            nd.setY(-p.row.index);
+            System.out.println("i:" + p.col.index);
+        }
         
         converged = true;
     }
@@ -136,7 +157,6 @@ public class TopologicalLayout implements Layout {
                 return -1;
             }
         }
-        
     }
     
     private class XComparitor implements Comparator<Node> {        

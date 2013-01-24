@@ -67,7 +67,9 @@ public class DynamicSlice {
             }
         }
         this.lastSlice.nextSlice = nextSlice;
-        this.nextSlice.lastSlice = lastSlice;
+        if (this.nextSlice != null) {
+            this.nextSlice.lastSlice = lastSlice;
+        }
         this.removed = true;
     }
 

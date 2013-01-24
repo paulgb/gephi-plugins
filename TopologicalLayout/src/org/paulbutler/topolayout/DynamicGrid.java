@@ -9,10 +9,9 @@ import java.util.List;
 public class DynamicGrid {
     ArrayList<DynamicSlice> rows = new ArrayList<DynamicSlice>();
     ArrayList<DynamicSlice> cols = new ArrayList<DynamicSlice>();
-    private final List<DynamicPoint> points;
+    public final List<DynamicPoint> points;
     private int numRows;
     private int numCols;
-
 
     public void reIndex() {
         numRows = rows.get(0).reIndex(0);
@@ -68,15 +67,15 @@ public class DynamicGrid {
         }
     }
     
-    public void RemoveRow(int rowIndex) {
+    public void removeRow(int rowIndex) {
         DynamicSlice row = rows.get(rowIndex);
         if (row.canRemove()) {
             row.remove();
         }
     }
 
-    public void RemoveCol(int colIndex) {
-        DynamicSlice col = rows.get(colIndex);
+    public void removeCol(int colIndex) {
+        DynamicSlice col = cols.get(colIndex);
         if (col.canRemove()) {
             col.remove();
         }
