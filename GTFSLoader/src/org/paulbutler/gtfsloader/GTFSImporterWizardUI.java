@@ -45,7 +45,9 @@ public class GTFSImporterWizardUI implements ImporterWizardUI {
 
     @Override
     public void unsetup(SpigotImporter si, Panel pnl) {
-        
+        GTFSImporterFileSelectorPanel fsPanel = (GTFSImporterFileSelectorPanel) pnl;
+        GTFSImporter importer = (GTFSImporter) si;
+        importer.setFile(fsPanel.getFile());
     }
 
     @Override

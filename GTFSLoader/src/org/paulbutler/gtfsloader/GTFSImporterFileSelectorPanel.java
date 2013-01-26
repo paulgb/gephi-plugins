@@ -65,4 +65,7 @@ public class GTFSImporterFileSelectorPanel implements Panel {
         changelistener.stateChanged(new ChangeEvent(this));
     }
 
+    public File getFile() {
+        return this.file;
+    }
 }
