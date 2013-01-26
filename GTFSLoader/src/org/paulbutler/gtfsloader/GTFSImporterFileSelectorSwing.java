@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package org.paulbutler.gtfsloader;
 
 import java.awt.event.ActionEvent;
@@ -10,10 +7,6 @@ import java.io.File;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 
-/**
- *
- * @author paulbutler
- */
 public class GTFSImporterFileSelectorSwing extends JPanel implements ActionListener {
     private final GTFSImporterFileSelectorPanel panel;
 

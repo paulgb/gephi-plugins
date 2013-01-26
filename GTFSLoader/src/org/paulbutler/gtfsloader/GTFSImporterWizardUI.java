@@ -32,8 +32,9 @@ public class GTFSImporterWizardUI implements ImporterWizardUI {
     @Override
     public Panel[] getPanels() {
         if (panels == null) {
-            panels = new Panel[1];
+            panels = new Panel[2];
             panels[0] = new GTFSImporterFileSelectorPanel();
+            panels[1] = new GTFSImporterOptionsPanel();
         }
         return panels;
     }
@@ -44,10 +45,13 @@ public class GTFSImporterWizardUI implements ImporterWizardUI {
     }
 
     @Override
-    public void unsetup(SpigotImporter si, Panel pnl) {
-        GTFSImporterFileSelectorPanel fsPanel = (GTFSImporterFileSelectorPanel) pnl;
+    public void unsetup(SpigotImporter si, Panel panel) {
         GTFSImporter importer = (GTFSImporter) si;
-        importer.setFile(fsPanel.getFile());
+        
+        if (panel instanceof GTFSImporterFileSelectorPanel) {
+            GTFSImporterFileSelectorPanel fsPanel = (GTFSImporterFileSelectorPanel) panel;
+            importer.setFile(fsPanel.getFile());
+        }
     }
 
     @Override
