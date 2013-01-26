@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: com.sunsetbrew.csv4180
+OpenIDE-Module-Localizing-Bundle: com/sunsetbrew/csv4180/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
