@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.zip.ZipException;
 import org.gephi.io.importer.api.ContainerLoader;
 import org.gephi.io.importer.api.EdgeDraft;
@@ -47,64 +48,112 @@ class GTFSImporter implements SpigotImporter {
                 loader.addNode(nd);
             }
             
-            if (options.getEdgeAlgorithm() == EdgeAlgorithm.SHAPES) {
-                Iterable<Map<String, String>> shapes = g.getFile("shapes.txt");
-                String lastStop = "";
-                String shapeId = "";
-                HashSet<String> edges = new HashSet<String>();
-                for (Map<String, String> shape : shapes) {
-                    Coordinate c = new Coordinate(new Float(shape.get("shape_pt_lat")), new Float(shape.get("shape_pt_lon")));
-                    if (!coordToStop.containsKey(c)) {
-                        continue;
-                    }
-                    String stop = coordToStop.get(c);
+            switch (options.getEdgeAlgorithm()) {
+                case SHAPES:
 
-                    if (shape.get("shape_id").equals(shapeId)) {
-                        String xxx = lastStop + " " + stop;
-                        assert !edges.contains(xxx);
-                        edges.add(xxx);
-                        
-                        NodeDraft source = loader.getNode(lastStop);
-                        NodeDraft target = loader.getNode(stop);
-                        if (!loader.edgeExists(source, target)) {
-                            EdgeDraft ed = loader.factory().newEdgeDraft();
-                            ed.setSource(loader.getNode(lastStop));
-                            ed.setTarget(loader.getNode(stop));
-                            ed.setType(EdgeDraft.EdgeType.UNDIRECTED);
-                            loader.addEdge(ed);
-                            
-                        } else {
-                            System.out.println("got here");
+                    Iterable<Map<String, String>> shapes = g.getFile("shapes.txt");
+                    String lastStop = "";
+                    String shapeId = "";
+                    HashSet<String> edges = new HashSet<String>();
+                    for (Map<String, String> shape : shapes) {
+                        Coordinate c = new Coordinate(new Float(shape.get("shape_pt_lat")), new Float(shape.get("shape_pt_lon")));
+                        if (!coordToStop.containsKey(c)) {
+                            continue;
                         }
-                    } else {
-                        shapeId = shape.get("shape_id");
-                    }
+                        String stop = coordToStop.get(c);
 
-                    lastStop = stop;
-                }
-            } else if (options.getEdgeAlgorithm() == EdgeAlgorithm.STOP_ORDER) {
-                Iterable<Map<String, String>> stop_times = g.getFile("stop_times.txt");
-                String lastStop = "";
-                String tripId = "";
-                for (Map<String, String> stop_time : stop_times) {
-                    String stop = stop_time.get("stop_id");
-                    if (stopIdToStationId.containsKey(stop)) {
-                        stop = stopIdToStationId.get(stop);
+                        if (shape.get("shape_id").equals(shapeId)) {
+                            NodeDraft source = loader.getNode(lastStop);
+                            NodeDraft target = loader.getNode(stop);
+                            if (!loader.edgeExists(source, target)) {
+                                EdgeDraft ed = loader.factory().newEdgeDraft();
+                                ed.setSource(loader.getNode(lastStop));
+                                ed.setTarget(loader.getNode(stop));
+                                ed.setType(EdgeDraft.EdgeType.UNDIRECTED);
+                                loader.addEdge(ed);
+                            } else {
+                            }
+                        } else {
+                            shapeId = shape.get("shape_id");
+                        }
+
+                        lastStop = stop;
                     }
                     
-                    if (stop_time.get("trip_id").equals(tripId)) {
-                        EdgeDraft ed = loader.factory().newEdgeDraft();
-                        ed.setSource(loader.getNode(lastStop));
-                        ed.setTarget(loader.getNode(stop));
-                        ed.setType(EdgeDraft.EdgeType.UNDIRECTED);
-                        loader.addEdge(ed);
-                    } else {
-                        tripId = stop_time.get("trip_id");
+                    break;
+                case STOP_ORDER:
+
+                    Iterable<Map<String, String>> stop_times = g.getFile("stop_times.txt");
+                    lastStop = "";
+                    String tripId = "";
+                    for (Map<String, String> stop_time : stop_times) {
+                        String stop = stop_time.get("stop_id");
+                        if (stopIdToStationId.containsKey(stop)) {
+                            stop = stopIdToStationId.get(stop);
+                        }
+
+                        if (stop_time.get("trip_id").equals(tripId)) {
+                            EdgeDraft ed = loader.factory().newEdgeDraft();
+                            NodeDraft source = loader.getNode(lastStop);
+                            NodeDraft target = loader.getNode(stop);
+                            if (!loader.edgeExists(source, target)) {
+                                ed.setSource(source);
+                                ed.setTarget(target);
+                                ed.setType(EdgeDraft.EdgeType.UNDIRECTED);
+                                loader.addEdge(ed);
+                            }
+                        } else {
+                            tripId = stop_time.get("trip_id");
+                        }
+                        lastStop = stop;
                     }
-                    lastStop = stop;
-                }
+
+                    break;
+                case DISTANCE:
+                    
+                    HashMap<String, String> tripToShape = new HashMap<String, String>();
+                    
+                    Iterable<Map<String, String>> trips = g.getFile("trips.txt");
+                    for (Map<String, String> trip : trips) {
+                        tripToShape.put(trip.get("trip_id"), trip.get("shape_id"));
+                    }
+                    
+                    HashMap<String, TreeMap<Float, String>> shapeToDistanceToStop = new HashMap<String, TreeMap<Float, String>>();
+                    stop_times = g.getFile("stop_times.txt");
+                    for (Map<String, String> stop_time : stop_times) {
+                        String shape_id = tripToShape.get(stop_time.get("trip_id"));
+                        if (!shapeToDistanceToStop.containsKey(shape_id)) {
+                            shapeToDistanceToStop.put(shape_id, new TreeMap<Float, String>());
+                        }
+                        TreeMap<Float, String> map = shapeToDistanceToStop.get(shape_id);
+                        Float distTraveled = 0.0f;
+                        if (!stop_time.get("shape_dist_traveled").equals("")) {
+                            distTraveled = new Float(stop_time.get("shape_dist_traveled"));
+                        }
+                        map.put(distTraveled, stop_time.get("stop_id"));
+                    }
+                    
+                    for (TreeMap<Float, String> shapeStops : shapeToDistanceToStop.values()) {
+                        lastStop = null;
+                        for (String stop : shapeStops.values()) {
+                            if (lastStop != null) {
+                                EdgeDraft ed = loader.factory().newEdgeDraft();
+                                NodeDraft source = loader.getNode(lastStop);
+                                NodeDraft target = loader.getNode(stop);
+                                if (!loader.edgeExists(source, target)) {
+                                    ed.setSource(source);
+                                    ed.setTarget(target);
+                                    ed.setType(EdgeDraft.EdgeType.UNDIRECTED);
+                                    loader.addEdge(ed);
+                                }
+                            }
+                            lastStop = stop;
+                        }
+                    }
+                    
+                    break;
             }
-                
+            
         } catch (ZipException ex) {
             Exceptions.printStackTrace(ex);
         } catch (IOException ex) {
