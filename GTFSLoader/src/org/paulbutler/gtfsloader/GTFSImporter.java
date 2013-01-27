@@ -8,6 +8,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.zip.ZipException;
+import org.gephi.data.attributes.api.AttributeColumn;
+import org.gephi.data.attributes.api.AttributeModel;
+import org.gephi.data.attributes.api.AttributeType;
 import org.gephi.io.importer.api.ContainerLoader;
 import org.gephi.io.importer.api.EdgeDraft;
 import org.gephi.io.importer.api.NodeDraft;
@@ -29,6 +32,8 @@ class GTFSImporter implements SpigotImporter {
         
         try {
             g = new GTFSFile(file);
+            
+            
             
             Iterable<Map<String, String>> stops = g.getFile("stops.txt");
             for (Map<String, String> stop : stops) {
@@ -109,7 +114,12 @@ class GTFSImporter implements SpigotImporter {
                     }
 
                     break;
+
                 case DISTANCE:
+                    
+                    AttributeModel am = loader.getAttributeModel();
+                    AttributeColumn shapeColumn = am.getEdgeTable().addColumn("shape", AttributeType.STRING);
+                                    
                     
                     HashMap<String, String> tripToShape = new HashMap<String, String>();
                     
@@ -133,7 +143,8 @@ class GTFSImporter implements SpigotImporter {
                         map.put(distTraveled, stop_time.get("stop_id"));
                     }
                     
-                    for (TreeMap<Float, String> shapeStops : shapeToDistanceToStop.values()) {
+                    for (String shpId : shapeToDistanceToStop.keySet()) {
+                        TreeMap<Float, String> shapeStops = shapeToDistanceToStop.get(shpId);
                         lastStop = null;
                         for (String stop : shapeStops.values()) {
                             if (lastStop != null) {
@@ -144,6 +155,7 @@ class GTFSImporter implements SpigotImporter {
                                     ed.setSource(source);
                                     ed.setTarget(target);
                                     ed.setType(EdgeDraft.EdgeType.UNDIRECTED);
+                                    ed.addAttributeValue(shapeColumn, shpId);
                                     loader.addEdge(ed);
                                 }
                             }
