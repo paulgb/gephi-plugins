@@ -52,6 +52,10 @@ public class GTFSImporterWizardUI implements ImporterWizardUI {
             GTFSImporterFileSelectorPanel fsPanel = (GTFSImporterFileSelectorPanel) panel;
             importer.setFile(fsPanel.getFile());
         }
+        if (panel instanceof GTFSImporterOptionsPanel) {
+            GTFSImporterOptionsPanel importPanel = (GTFSImporterOptionsPanel) panel;
+            importer.setOptions(importPanel.getOptions());
+        }
     }
 
     @Override

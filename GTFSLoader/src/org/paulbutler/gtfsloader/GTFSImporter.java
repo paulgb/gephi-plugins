@@ -16,9 +16,15 @@ import org.openide.util.Exceptions;
 class GTFSImporter implements SpigotImporter {
     private ContainerLoader loader;
     private File file;
+    private GTFSImportOptions options;
 
     @Override
     public boolean execute(ContainerLoader loader) {
+        System.out.println(options);
+        if (true) {
+            return true;
+        }
+        
         GTFSFile g;
         
         Map<Coordinate, String> coordToStop = new HashMap<Coordinate, String>();
@@ -87,6 +93,10 @@ class GTFSImporter implements SpigotImporter {
 
     void setFile(File file) {
         this.file = file;
+    }
+
+    void setOptions(GTFSImportOptions options) {
+        this.options = options;
     }
     
 }
