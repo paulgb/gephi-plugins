@@ -26,7 +26,7 @@ public class GTFSImporterWizardUI implements ImporterWizardUI {
 
     @Override
     public String getDescription() {
-        return "Description1";
+        return "Load transit graph from a General Transit Feed Specification file";
     }
 
     @Override
@@ -40,7 +40,7 @@ public class GTFSImporterWizardUI implements ImporterWizardUI {
     }
 
     @Override
-    public void setup(Panel pnl) {
+    public void setup(Panel panel) {
         
     }
 

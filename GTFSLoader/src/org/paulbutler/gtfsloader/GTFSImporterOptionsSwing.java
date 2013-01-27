@@ -4,7 +4,13 @@
  */
 package org.paulbutler.gtfsloader;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import javax.swing.JCheckBox;
 import javax.swing.JRadioButton;
 
@@ -12,16 +18,18 @@ import javax.swing.JRadioButton;
  *
  * @author paulbutler
  */
-public class GTFSImporterOptionsSwing extends javax.swing.JPanel {
-    private final HashMap<GTFSTransitType, JCheckBox> typeToCheckBox;
+public class GTFSImporterOptionsSwing extends javax.swing.JPanel implements ActionListener {
+    private final Map<GTFSTransitType, JCheckBox> typeToCheckBox;
+    private final GTFSImporterOptionsPanel panel;
+    private final EnumMap<EdgeAlgorithm, JRadioButton> algorithmToRadioBox;
 
     /**
      * Creates new form GTFSImporterOptionsSwing
      */
-    public GTFSImporterOptionsSwing() {
+    public GTFSImporterOptionsSwing(GTFSImporterOptionsPanel panel) {
         initComponents();
         
-        typeToCheckBox = new HashMap<GTFSTransitType, JCheckBox>();
+        typeToCheckBox = new EnumMap<GTFSTransitType, JCheckBox>(GTFSTransitType.class);
         typeToCheckBox.put(GTFSTransitType.BUS, useBus);
         typeToCheckBox.put(GTFSTransitType.CABLE_CAR, useCableCar);
         typeToCheckBox.put(GTFSTransitType.FERRY, useFerry);
@@ -30,6 +38,21 @@ public class GTFSImporterOptionsSwing extends javax.swing.JPanel {
         typeToCheckBox.put(GTFSTransitType.LIGHT_RAIL, useLightRail);
         typeToCheckBox.put(GTFSTransitType.RAIL, useRail);
         typeToCheckBox.put(GTFSTransitType.SUBWAY, useSubway);
+        
+        algorithmToRadioBox = new EnumMap<EdgeAlgorithm, JRadioButton>(EdgeAlgorithm.class);
+        algorithmToRadioBox.put(EdgeAlgorithm.DISTANCE, edgeDistance);
+        algorithmToRadioBox.put(EdgeAlgorithm.SHAPES, edgeShapes);
+        algorithmToRadioBox.put(EdgeAlgorithm.STOP_ORDER, edgeStopOrder);
+        
+        this.panel = panel;
+        
+        for (JCheckBox cb : typeToCheckBox.values()) {
+            cb.addActionListener(this);
+        }
+        
+        for (JRadioButton rb : algorithmToRadioBox.values()) {
+            rb.addActionListener(this);
+        }
     }
 
     /**
@@ -45,7 +68,7 @@ public class GTFSImporterOptionsSwing extends javax.swing.JPanel {
         javax.swing.JLabel jLabel1 = new javax.swing.JLabel();
         edgeShapes = new javax.swing.JRadioButton();
         edgeDistance = new javax.swing.JRadioButton();
-        edgeOrder = new javax.swing.JRadioButton();
+        edgeStopOrder = new javax.swing.JRadioButton();
         javax.swing.JLabel jLabel2 = new javax.swing.JLabel();
         useLightRail = new javax.swing.JCheckBox();
         useSubway = new javax.swing.JCheckBox();
@@ -77,8 +100,8 @@ public class GTFSImporterOptionsSwing extends javax.swing.JPanel {
             }
         });
 
-        edgeStyleGroup.add(edgeOrder);
-        org.openide.awt.Mnemonics.setLocalizedText(edgeOrder, org.openide.util.NbBundle.getMessage(GTFSImporterOptionsSwing.class, "GTFSImporterOptionsSwing.edgeOrder.text")); // NOI18N
+        edgeStyleGroup.add(edgeStopOrder);
+        org.openide.awt.Mnemonics.setLocalizedText(edgeStopOrder, org.openide.util.NbBundle.getMessage(GTFSImporterOptionsSwing.class, "GTFSImporterOptionsSwing.edgeStopOrder.text")); // NOI18N
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(GTFSImporterOptionsSwing.class, "GTFSImporterOptionsSwing.jLabel2.text")); // NOI18N
 
@@ -133,7 +156,7 @@ public class GTFSImporterOptionsSwing extends javax.swing.JPanel {
                             .add(edgeDistance)
                             .add(jLabel1)
                             .add(edgeShapes)
-                            .add(edgeOrder)
+                            .add(edgeStopOrder)
                             .add(layout.createSequentialGroup()
                                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                     .add(useLightRail)
@@ -151,7 +174,7 @@ public class GTFSImporterOptionsSwing extends javax.swing.JPanel {
                         .add(selectNone)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(selectAll)))
-                .addContainerGap(176, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -163,7 +186,7 @@ public class GTFSImporterOptionsSwing extends javax.swing.JPanel {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(edgeDistance)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(edgeOrder)
+                .add(edgeStopOrder)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jLabel2)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -186,7 +209,7 @@ public class GTFSImporterOptionsSwing extends javax.swing.JPanel {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(selectNone)
                     .add(selectAll))
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -195,25 +218,27 @@ public class GTFSImporterOptionsSwing extends javax.swing.JPanel {
     }//GEN-LAST:event_edgeShapesActionPerformed
 
     private void edgeDistanceActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edgeDistanceActionPerformed
-        // TODO add your handling code here:
+
     }//GEN-LAST:event_edgeDistanceActionPerformed
 
     private void selectAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectAllActionPerformed
         for (JCheckBox checkbox : typeToCheckBox.values()) {
             checkbox.setSelected(true);
         }
+        actionPerformed(evt);
     }//GEN-LAST:event_selectAllActionPerformed
 
     private void selectNoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectNoneActionPerformed
         for (JCheckBox checkbox : typeToCheckBox.values()) {
             checkbox.setSelected(false);
         }
+        actionPerformed(evt);
     }//GEN-LAST:event_selectNoneActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JRadioButton edgeDistance;
-    private javax.swing.JRadioButton edgeOrder;
     private javax.swing.JRadioButton edgeShapes;
+    private javax.swing.JRadioButton edgeStopOrder;
     private javax.swing.ButtonGroup edgeStyleGroup;
     private javax.swing.JButton selectAll;
     private javax.swing.JButton selectNone;
@@ -226,4 +251,27 @@ public class GTFSImporterOptionsSwing extends javax.swing.JPanel {
     private javax.swing.JCheckBox useRail;
     private javax.swing.JCheckBox useSubway;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void actionPerformed(ActionEvent ae) {
+        GTFSImportOptions options = this.panel.getOptions();
+        
+        Set<GTFSTransitType> transitTypes = EnumSet.noneOf(GTFSTransitType.class);
+        for (GTFSTransitType transitType : typeToCheckBox.keySet()) {
+            if (typeToCheckBox.get(transitType).isSelected()) {
+                transitTypes.add(transitType);
+            }
+        }
+        
+        options.setTransitTypes(transitTypes);
+        
+        for (EdgeAlgorithm ea : algorithmToRadioBox.keySet()) {
+            if (algorithmToRadioBox.get(ea).isSelected()) {
+                options.setEdgeAlgorithm(ea);
+                break;
+            }
+        }
+        
+        this.panel.setOptions(options);
+    }
 }
