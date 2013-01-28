@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.paulbutler.gtfsloader
+OpenIDE-Module-Localizing-Bundle: org/paulbutler/gtfsloader/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

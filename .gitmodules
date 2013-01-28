@@ -1,0 +1,3 @@
+[submodule "GTFSLoader"]
+	path = GTFSLoader
+	url = git@github.com:paulgb/GTFSLoader.git
