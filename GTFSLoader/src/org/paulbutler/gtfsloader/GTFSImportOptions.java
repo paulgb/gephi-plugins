@@ -4,7 +4,9 @@ package org.paulbutler.gtfsloader;
 import java.util.EnumSet;
 import java.util.Set;
 
-
+/*
+ * Represents the parameters of the import algorithm
+ */
 public class GTFSImportOptions {
     private EdgeAlgorithm edgeAlgorithm;
     private Set<GTFSTransitType> transitTypes;
@@ -30,6 +32,7 @@ public class GTFSImportOptions {
         return edgeAlgorithm;
     }
     
+    @Override
     public String toString () {
         return "Options: " + edgeAlgorithm + " " + transitTypes;
     }

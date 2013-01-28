@@ -1,12 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.paulbutler.gtfsloader;
 
-/**
- *
- * @author paulbutler
+/*
+ * Represents the different algorithms that can be used for converting
+ * edges; see README.md for details
  */
 public enum EdgeAlgorithm {
     SHAPES,

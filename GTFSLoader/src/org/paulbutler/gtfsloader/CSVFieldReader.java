@@ -11,9 +11,19 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import org.openide.util.Exceptions;
 
-
-public class CSVFieldReader extends CSVReader implements Iterable<Map<String, String>>, Iterator<Map<String, String>> {
+/*
+ * Read an RFC 4180-compliant CSV files. Takes the first row to be the field
+ * names and produces an iterator of Map<String, String> objects for accessing
+ * the values at each row.
+ */
+public class CSVFieldReader extends CSVReader
+        implements Iterable<Map<String, String>>,
+                   Iterator<Map<String, String>> {
     private final ArrayList<String> fieldNames;
+    
+    /* Sometimes we need to read one row ahead to make sure the next row
+     * isn't empty. When we do so we store the row in the rowBuffer.
+     */
     private ArrayList<String> rowBuffer;
     
     public CSVFieldReader(Reader r) {

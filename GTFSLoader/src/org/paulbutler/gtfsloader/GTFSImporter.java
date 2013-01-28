@@ -33,8 +33,6 @@ class GTFSImporter implements SpigotImporter {
         try {
             g = new GTFSFile(file);
             
-            
-            
             Iterable<Map<String, String>> stops = g.getFile("stops.txt");
             for (Map<String, String> stop : stops) {
                 if (!stop.get("parent_station").equals("")) {

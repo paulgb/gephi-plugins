@@ -1,6 +1,10 @@
 
 package org.paulbutler.gtfsloader;
 
+/*
+ * Represents a coordinate on a two-dimensional Cartesian plain, or simply
+ * a pair of floats.
+ */
 class Coordinate {
     private final float lat;
     private final float lon;
@@ -18,12 +22,16 @@ class Coordinate {
         return lat;
     }
     
+    @Override
     public String toString() {
         return "[" + lat + ", " + lon + "]";
     }
     
     @Override
     public boolean equals (Object b) {
+        if (!(b instanceof Coordinate)) {
+            return false;
+        }
         Coordinate coord = (Coordinate) b;
         return lon == coord.lon && lat == coord.lat;
     }

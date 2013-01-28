@@ -1,12 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package org.paulbutler.gtfsloader;
 
-/**
- *
- * @author paulbutler
+/*
+ * Enumerates the different transit types that can be represented by GTFS.
  */
 public enum GTFSTransitType {
     LIGHT_RAIL (0),
